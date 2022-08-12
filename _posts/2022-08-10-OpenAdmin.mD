@@ -73,6 +73,8 @@ From the /etc/passwd file we can see there are 2 users with logins on the box, J
 
 ![home](/assets/img/users.png)
 
+### Pivoting to Jimmy
+
 Let's try logging into SSH with the password we found earlier.
 
 ![home](/assets/img/ssh.png)
@@ -107,6 +109,8 @@ Logging in with our new found credentials takes us to /main.php, which is leakin
 
 ![key](/assets/img/key.png)
 
+### Pivoting to Joanna
+
 We'll want to crack this with John, which is pretty simple with some help from [this guide](https://null-byte.wonderhowto.com/how-to/crack-ssh-private-key-passwords-with-john-ripper-0302810/).
 
 ![bloodninjas](/assets/img/bloodninjas.png)
@@ -114,6 +118,8 @@ We'll want to crack this with John, which is pretty simple with some help from [
 Following the guide further, we give the private key the proper permissions, and then use it along with the passphrase we got from john to authenticate to the SSH server. After pivoting 2 times, the user flag is finally ours!
 
 ![user](/assets/img/user.png)
+
+### Privilege Escalation
 
 Luckily, the road to root is not far from here. Let's first check if Joanna has sudo priviledges anywhere.
 
