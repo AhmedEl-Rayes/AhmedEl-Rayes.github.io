@@ -81,10 +81,52 @@ Success! The user flag is nowhere to be seen, looks like we'll need to pivot to 
 
 ![home](/assets/img/netstat.png)
 
-I'm able to curl and make a GET request, and I get HTML as a response. I'm going to have to tunnel my ssh connection to access the machine's internal services. This can be done with-
+If I make a GET request to the port with curl, I get HTML response, meaning a website is hosted on this port. However, I can't visit this website online because it is being served internally, so I use this command to tunnel the SSH connection and be able to view the internal service-
 
 ```bash
 ssh jimmy@10.10.10.171 -L 52846:127.0.0.1:52846
 ```
 
-Now when I visit http://127.0.0.1:52846 I can see a login page.
+Now when I visit http://127.0.0.1:52846 I can access the website that is being hosted internally, neat!
+
+![internal](/assets/img/internal.png)
+
+The credentials we found earlier don't work, so let's do some more digging on the box for config files or anything that will give us a better idea what's happening behind the scenes.
+
+![list](/assets/img/internalsite.png)
+
+The /var/www/internal directory contains the php source code of the website, and once again we find hard coded credentials, this time in the index.php file.
+
+![key](/assets/img/hash.png)
+
+Using an online hash table we can see that the plaintext password for this hash is "Revealed"
+
+![Revealed](/assets/img/Revealed.png)
+
+Logging in with our new found credentials takes us to /main.php, which is leaking Joanna's SSH private key. We'll grab this so we can login to the box as her.
+
+![key](/assets/img/key.png)
+
+We'll want to crack this with John, which is pretty simple with some help from [this guide](https://null-byte.wonderhowto.com/how-to/crack-ssh-private-key-passwords-with-john-ripper-0302810/).
+
+![bloodninjas](/assets/img/bloodninjas.png)
+
+Following the guide further, we give the private key the proper permissions, and then use it along with the passphrase we got from john to authenticate to the SSH server. After pivoting 2 times, the user flag is finally ours!
+
+![user](/assets/img/user.png)
+
+Luckily, the road to root is not far from here. Let's first check if Joanna has sudo priviledges anywhere.
+
+![sudo](/assets/img/sudo.png)
+
+Joanna has sudo access with nano inside of /opt/priv, we can exploit this to get root access using a nice trick from [gtfobins](https://gtfobins.github.io/gtfobins/nano/).
+
+```bash
+sudo /bin/nano /opt/priv
+(^R^X)
+reset; sh 1>&0 2>&0
+```
+
+![root](/assets/img/root.png)
+
+And just like that, we have a root shell within nano that we can use to grab the root flag.
