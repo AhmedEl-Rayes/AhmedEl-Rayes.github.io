@@ -1,7 +1,7 @@
 ---
 title: OpenAdmin
 date: 2022-08-10 19:25
-categories: [Linux, WebApp]
+categories: [Linux,Password Reuse,Weak Credentials,Password Cracking,Lateral Movement, Source Code Review,Sudo Exploitation]
 tags: [htb]
 --- 
 OpenAdmin is a fun easy level box on HacktheBox, and will always have a special place in my heart as the first box I fully solved without needing a walkthrough. We begin by exploiting a vulnerable management console on the website to get a foothold, and ultimately abuse sudo priviledges to root the box.
@@ -88,7 +88,7 @@ Success! We can now SSH into the machine as Jimmy, however the user flag is nowh
 
 ![home](/assets/img/netstat.png)
 
-If I make a GET request to the port with curl, I get an HTML response, meaning a website is hosted on this port. However, I can't visit this website online because the website is being served internally on the target, meaning I have to tunnel my SSH connection in order interract with the target's internal services.
+If I make a GET request to the port with curl, I get an HTML response, meaning a website is hosted on this port. However, I can't visit this website online because the website is being served internally on the target, meaning I have to tunnel my SSH connection in order interact with the target's internal services.
 
 ```bash
 ssh jimmy@10.10.10.171 -L 52846:127.0.0.1:52846
