@@ -1,14 +1,14 @@
 ---
-title: Open Admin
+title: OpenAdmin
 date: 2022-08-10 19:25
 categories: [Linux, WebApp]
 tags: [htb]
 --- 
-OpenAdmin is a fun easy level box, and will always have a special place in my heart as the first box I solved without needing a walkthrough. We begin by exploiting a vulnerable management console on the website to get a foothold, and ultimately abuse sudo priviledges to root the box.
+OpenAdmin is a fun easy level box on HacktheBox, and will always have a special place in my heart as the first box I fully solved without needing a walkthrough. We begin by exploiting a vulnerable management console on the website to get a foothold, and ultimately abuse sudo priviledges to root the box.
 
 ### Enumeration
 
-To begin, we run an nmap to look for open ports and running services.
+To begin, we run an nmap to look for open ports and running services on the target host.
 
 ```bash
 sudo nmap -sC -sV -p- 10.10.10.171 
@@ -24,7 +24,7 @@ PORT   STATE SERVICE VERSION
 Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
 ```
 
-Looks like an Ubuntu machine with SSH and HTTP open on ports 22 and 80. Before I poke around on the website, I'm going set up some directory brute forcing with dirb to look for any potentially hidden or interesting endpoints.
+Looks like it's an Ubuntu server with SSH and HTTP open on ports 22 and 80. Before I poke around on the website, I'm going set up some directory brute forcing with dirb to look for any potentially hidden or interesting endpoints on the website.
 
 ```bash
 dirb http://10.10.10.171 /usr/share/wordlists/dirbuster/directory-list-2.3-small.txt
@@ -34,11 +34,16 @@ At first glance the web page doesn't seem to actually contain any content, just 
 
 ![it works](/assets/img/itworks.png)
 
-Luckily our dirb found the /music and /artwork directories, which *do* actually contain web content, though most links on the site point back to index.html. A "login" button, however, redirects us to the /ona page, where it seems we have access to some sort of management console.
+Luckily our dirb found the /music and /artwork directories, which *do* contain web content, though most of the links on the site just point back to index.html.
+
+![dirb](/assets/img/dirb.png)
+![login](/assets/img/login.png)
+
+A "login" button, however, redirects us to the /ona page, where it seems we have access to some sort of management console.
 
 ![ona](/assets/img/onaconsole.png)
 
-By using some good ol' google, it appears that ONA is OpenNetAdmin, a network management tool with some pretty serious vulnerabilities reported in the past. As a matter of fact, an exploit script for this exact version of ona (18.1.1) is available on [Github](https://github.com/amriunix/ona-rce).
+ONA is a network management console, but after messing around here for a little, it doesn't really seem like there's much we can do. There's default admin credentials in the [ONA documentation](https://github.com/opennetadmin/ona), but logging in as admin still doesn't give us much to work with. On google, we can learn that ONA has had some serious security vulnerabilities in the past. As a matter of fact, an exploit script for this exact version of ONA (18.1.1) is available on [Github](https://github.com/amriunix/ona-rce), which explains the warning on the left of the web console.
 
 ### Foothold
 
@@ -52,7 +57,7 @@ We send a bash reverse shell, the connection hangs, and a new connection pops up
 
 ![listener](/assets/img/listener.png)
 
-This shell is not interactive, so we need to run some commands to upgrade it-
+This shell is not interactive, so we need to run some commands to upgrade it
 
 ```bash
 python3 -c 'import pty; pty.spawn("/bin/bash")'
@@ -61,7 +66,7 @@ export TERM=screen
 stty raw -echo; fg
 ```
 
-Now that we have an interactive shell, we will begin by enumerating the /opt/ona/www directory.
+Now that we have our upgraded shell, we will begin by enumerating the /opt/ona/www directory that our shell spawned in.
 
 ![juicy](/assets/img/juicy.png)
 
@@ -75,29 +80,29 @@ From the /etc/passwd file we can see there are 2 users with logins on the box, J
 
 ### Pivoting to Jimmy
 
-Let's try logging into SSH with the password we found earlier.
+Let's try logging into SSH with the password we found earlier, it's possible that one of the users who created the db password reuses the same password for their own login, so we'll check both Jimmy and Joanna.
 
 ![home](/assets/img/ssh.png)
 
-Success! The user flag is nowhere to be seen, looks like we'll need to pivot to Joanna to get it. For now let's carry on enumerating the box. Netstat shows us a port open locally on 52846.
+Success! We can now SSH into the machine as Jimmy, however the user flag is nowhere to be seen, looks like we'll need to pivot to Joanna to get it. For now let's carry on enumerating the box. Netstat shows us a port open locally on 52846.
 
 ![home](/assets/img/netstat.png)
 
-If I make a GET request to the port with curl, I get HTML response, meaning a website is hosted on this port. However, I can't visit this website online because it is being served internally, so I use this command to tunnel the SSH connection and be able to view the internal service-
+If I make a GET request to the port with curl, I get an HTML response, meaning a website is hosted on this port. However, I can't visit this website online because the website is being served internally on the target, meaning I have to tunnel my SSH connection in order interract with the target's internal services.
 
 ```bash
 ssh jimmy@10.10.10.171 -L 52846:127.0.0.1:52846
 ```
 
-Now when I visit http://127.0.0.1:52846 I can access the website that is being hosted internally, neat!
+Now when I visit http://127.0.0.1:52846, I can access the website that is being served internally on the target, neat!
 
 ![internal](/assets/img/internal.png)
 
-The credentials we found earlier don't work, so let's do some more digging on the box for config files or anything that will give us a better idea what's happening behind the scenes.
+The credentials we found earlier don't let us in, so let's do some more digging for config files or anything that will give us a better idea of what's happening behind the scenes on this website.
 
 ![list](/assets/img/internalsite.png)
 
-The /var/www/internal directory contains the php source code of the website, and once again we find hard coded credentials, this time in the index.php file.
+The /var/www/internal directory contains the php source code of the website, and once again we find hard coded credentials, this time it's a SHA512 hash in the index.php file.
 
 ![key](/assets/img/hash.png)
 
@@ -105,11 +110,11 @@ Using an online hash table we can see that the plaintext password for this hash 
 
 ![Revealed](/assets/img/Revealed.png)
 
-Logging in with our new found credentials takes us to /main.php, which is leaking Joanna's SSH private key. We'll grab this so we can login to the box as her.
-
-![key](/assets/img/key.png)
+Logging in with our new found credentials takes us to /main.php, which is leaking Joanna's SSH private key. We'll grab this so we can SSH into the box as her.
 
 ### Pivoting to Joanna
+
+![key](/assets/img/key.png)
 
 We'll want to crack this with John, which is pretty simple with some help from [this guide](https://null-byte.wonderhowto.com/how-to/crack-ssh-private-key-passwords-with-john-ripper-0302810/).
 
