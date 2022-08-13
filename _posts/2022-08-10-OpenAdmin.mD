@@ -88,7 +88,7 @@ Success! We can now SSH into the machine as Jimmy, however the user flag is nowh
 
 ![home](/assets/img/netstat.png)
 
-If I make a GET request to the port with curl, I get an HTML response, meaning a website is hosted on this port. However, I can't visit this website online because the website is being served internally on the target, meaning I have to tunnel my SSH connection in order interact with the target's internal services.
+If I make a GET request to the port with curl, I get an HTML response, meaning a website is hosted on this port. However, I can't visit this website online because it is being served internally on the target, meaning I have to tunnel my SSH connection in order to interact with the target's internal services.
 
 ```bash
 ssh jimmy@10.10.10.171 -L 52846:127.0.0.1:52846
