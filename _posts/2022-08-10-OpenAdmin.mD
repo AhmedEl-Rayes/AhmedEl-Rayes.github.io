@@ -2,7 +2,7 @@
 title: OpenAdmin
 date: 2022-08-10 19:25
 categories: [htb]
-tags: [Linux,Password Reuse,Weak Credentials,Password Cracking,Lateral Movement, Source Code Review,Sudo Exploitation]
+tags: [Linux,Password Reuse,Weak Credentials,Password Cracking,Lateral Movement, Source Code Review,Sudo Exploitation,Public Vulnerabilities]
 --- 
 ![openadminimg](/assets/img/openadminimg.png)
 OpenAdmin is a fun easy level box on HacktheBox, and will always have a special place in my heart as the first box I fully solved without needing a walkthrough. We begin by exploiting a vulnerable management console on the website to get a foothold, and ultimately abuse sudo priviledges to root the box.
