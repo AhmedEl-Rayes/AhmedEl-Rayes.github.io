@@ -42,7 +42,7 @@ To switch the position of panes use `prefix+{` or `prefix+}`
 
 To cycle through different layouts of panes use `prefix+<space bar>`
 
-## Grep
+### Grep
 
 Grep is a very powerful command line tool used to find matching patterns. You can use it to find a file in a directory, to find a specific string inside of a file, or you can even use it on the output of another command with the | character. The basic syntax of a grep command is 
 
@@ -71,3 +71,35 @@ There are tons more flags and options for grep, but these are a few that I find 
 Will search for file names within the /var/www/ directory that do not contain config. To view the full power of grep, you can always use
 
 `man grep`
+
+### Vim
+
+Vim is a powerful text editor, and is ubiquitous accross linux systems. One of the mottos of Vim is "edit at the speed of thought", and vim really is it's own language.
+
+Opening a vile with `vim <file>` will enter you in read-only `normal mode`. To edit the file, press `i` to enter `insert mode`, and hit `esc` to exit insert mode. Some useful shortcuts include:
+
+`x` : Cut Character
+
+`dw` : cut word
+
+`dd` : cut full line
+
+`yw` : copy word
+
+`yy` : copy full line
+
+`p` : paste
+
+You can multiple any command to run multiple times by adding a number before it, `4yw` will copy 4 words for example.
+
+You can hit `:` to enter `command mode`, some basic ones include
+
+`:1` : jump to the first line
+
+`:w` : write (save)
+
+`:q` : quit
+
+`:q!` : force quit (without saving)
+
+`:wq` : write and quit
