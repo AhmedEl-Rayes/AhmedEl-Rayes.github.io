@@ -1,7 +1,7 @@
 ---
 title: Port Swigger Academy Notes
 date: 2023-02-02 21:19
-categories: [Educational]
+categories: [Port Swigger]
 tags: [Educational]
 ---
 
@@ -86,5 +86,4 @@ To test for SQL injection manually, every single field that accepts user input c
 - Submitting Boolean conditions such as `OR 1=1` or `OR 1=2` and looking for differences in the application's responses.
 - Submitting payloads that are designed to trigger time delays, these are different depending on which database the application is using (enumerate, enumerate, enumerate)
 
-## Preventing SQL Injection
 
